@@ -21,10 +21,7 @@
     <button id="btnNewQuote">Show New Quote</button>
     <button id="btnAddQuote">Add Quote</button>
 
-    <span class="spacer"></span>
 
-    <button id="exportBtn">Export JSON</button>
-    <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
     <button id="btnSync">Sync Now</button>
   </div>
 
@@ -44,6 +41,13 @@
 
   <!-- Notifications -->
   <div id="notifications"></div>
+
+  <!-- JSON Export Button -->
+<button id="exportQuotes">Export Quotes</button>
+
+<!-- JSON Import Input -->
+<input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
+
 
   <script src="script.js"></script>
 </body>

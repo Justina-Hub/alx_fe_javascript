@@ -26,7 +26,7 @@
     quoteCategory: document.getElementById("quoteCategory"),
     newQuoteBtn: document.getElementById("btnNewQuote"),
     addQuoteBtn: document.getElementById("btnAddQuote"),
-    exportBtn: document.getElementById("exportBtn"),
+    exportBtn: document.getElementById("btnExport"),
     syncBtn: document.getElementById("btnSync"),
     tweetLink: document.getElementById("tweetLink"),
     clearBtn: document.getElementById("btnClearStorage"),
@@ -239,56 +239,55 @@
   window.filterQuotes = filterQuotes;
 
   // ---------- Import / Export ----------
-  function exportToJson() {
-    const blob = new Blob([JSON.stringify(quotes, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `quotes-${new Date().toISOString().slice(0,19)}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-    notify("Exported quotes to JSON.", 'ok');
+
+    // ---------- Import / Export ----------
+function exportToJsonFile() {
+  if (!quotes || quotes.length === 0) {
+    alert("No quotes available to export!");
+    return;
   }
 
-  function importFromJsonFile(event) {
-    const fileReader = new FileReader();
-    fileReader.onload = function(evt) {
-      try {
-        const importedQuotes = JSON.parse(evt.target.result);
-        if (!Array.isArray(importedQuotes)) throw new Error("Invalid JSON format (expected an array).");
+  const dataStr = JSON.stringify(quotes, null, 2);
+  const blob = new Blob([dataStr], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
 
-        let added = 0, skipped = 0;
-        importedQuotes.forEach(item => {
-          const text = (item.text || "").trim();
-          const category = (item.category || "General").trim();
-          if (!text) { skipped++; return; }
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "quotes.json";
+  document.body.appendChild(link);
+  link.click();
 
-          const exists = quotes.some(q => q.text.toLowerCase() === text.toLowerCase() && q.category.toLowerCase() === category.toLowerCase());
-          if (exists) { skipped++; return; }
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
 
-          quotes.push({
-            id: item.id && typeof item.id === "string" ? item.id : uid(item.source === "server" ? "server" : "local"),
-            text,
-            category,
-            updatedAt: typeof item.updatedAt === "number" ? item.updatedAt : Date.now(),
-            source: item.source === "server" ? "server" : "local",
-          });
-          added++;
-        });
+window.exportToJsonFile = exportToJsonFile;
 
-        persistQuotes();
-        populateCategories();
-        notify(`Quotes imported successfully! Added ${added}, skipped ${skipped}.`, 'ok');
-        showRandomQuote();
-      } catch (e) {
-        console.error(e);
-        notify("Failed to import JSON. Please check the file format.", 'err');
-      }
-    };
-    fileReader.readAsText(event.target.files[0]);
-  }
+
+// Import quotes from JSON file
+function importFromJsonFile(event) {
+  const fileReader = new FileReader();
+  fileReader.onload = function(e) {
+    try {
+      const importedQuotes = JSON.parse(e.target.result);
+      quotes.push(...importedQuotes);
+      saveQuotes();
+      alert("Quotes imported successfully!");
+    } catch (err) {
+      alert("Invalid JSON file!");
+    }
+  };
+  fileReader.readAsText(event.target.files[0]);
+}
+
+// Event listener for export button
+document.getElementById("exportQuotes").addEventListener("click", exportToJsonFile);
+
+
+
+
+
+
 
   window.importFromJsonFile = importFromJsonFile; // per assignment snippet
   function clearStorage() {
@@ -364,9 +363,14 @@
       showRandomQuote();
     }
 
+
+
+
+
+
+
     els.newQuoteBtn.addEventListener("click", showRandomQuote);
     els.addQuoteBtn.addEventListener("click", createAddQuoteForm);
-    els.exportBtn.addEventListener("click", exportToJson);
     els.syncBtn.addEventListener("click", syncWithServer);
     els.clearBtn.addEventListener("click", clearStorage);
 
@@ -376,3 +380,4 @@
 
   document.addEventListener("DOMContentLoaded", init);
 })();
+
