@@ -1,4 +1,4 @@
-/* =========================================================
+  /* =========================================================
    Dynamic Quote Generator
    - Advanced DOM manipulation
    - Web Storage (localStorage + sessionStorage)
@@ -160,7 +160,7 @@
 // ---- Filtering ----
 function filterQuotes() {
   const selectedCategory = els.categoryFilter.value;
-  
+
 saveLastFilter(els.categoryFilter.value);
   // Save to localStorage
   localStorage.setItem("selectedCategory", selectedCategory);
@@ -326,10 +326,6 @@ document.getElementById("exportQuotes").addEventListener("click", exportToJsonFi
 
 
 
-
-
-
-
   window.importFromJsonFile = importFromJsonFile; // per assignment snippet
   function clearStorage() {
     localStorage.removeItem(LS_QUOTES_KEY);
@@ -341,53 +337,50 @@ document.getElementById("exportQuotes").addEventListener("click", exportToJsonFi
     notify("Local storage cleared.", 'ok');
   }
 
-  // ---------- Server Sync Simulation ----------
-  // We simulate a server using JSONPlaceholder posts. Server "wins" in conflicts.
-  async function syncWithServer() {
-    try {
-      // Fetch a handful of posts as "server quotes"
-      const res = await fetch("https://jsonplaceholder.typicode.com/posts?_limit=5");
-      const posts = await res.json();
+ 
+// Fetch from server (mock)
+function fetchQuotesFromServer() {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve([...quotes]); // clone array
+    }, 500); // simulate network delay
+  });
+}
 
-      /** @type {Quote[]} */
-      const serverQuotes = posts.map(p => ({
-        id: `server-${p.id}`,
-        text: (p.title || p.body || "").trim() || `Post #${p.id}`,
-        category: "Server",
-        updatedAt: Date.now(),
-        source: "server",
-      }));
+// Post new quote to server (mock)
+function postQuoteToServer(newQuote) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      quotes.push(newQuote);
+      resolve(newQuote);
+    }, 500);
+  });
+}
 
-      let added = 0, updated = 0;
+// ---- Sync Logic ----
+async function syncQuotes() {
+  try {
+    const serverQuotes = await fetchQuotesFromServer();
+    const localQuotes = JSON.parse(localStorage.getItem("dqg_quotes")) || [];
 
-      serverQuotes.forEach(sq => {
-        const idx = quotes.findIndex(q => q.id === sq.id);
-        if (idx === -1) {
-          quotes.push(sq);
-          added++;
-        } else {
-          // Conflict? If texts differ, server wins
-          if (quotes[idx].text !== sq.text || quotes[idx].category !== sq.category) {
-            quotes[idx] = { ...sq, updatedAt: Date.now() };
-            updated++;
-          }
-        }
-      });
+    // Conflict resolution: server data takes precedence
+    const mergedQuotes = [...serverQuotes];
 
-      if (added || updated) {
-        persistQuotes();
-        populateCategories();
-        notify(`Synced with server. Added ${added}, updated ${updated}.`, 'ok', [
-          { label: "Show Random", onClick: showRandomQuote }
-        ]);
-      } else {
-        notify("Sync complete. No changes.", 'notice');
-      }
-    } catch (e) {
-      console.error(e);
-      notify("Sync failed. Check your internet connection.", 'err');
-    }
+    // Save merged quotes to local storage
+    localStorage.setItem("quotes", JSON.stringify(mergedQuotes));
+    quotes = mergedQuotes; // update in-memory array
+
+    notify("Quotes synced with server (server data applied).", "ok");
+    renderQuote(quotes[Math.floor(Math.random() * quotes.length)]); 
+  } catch (error) {
+    console.error("Error syncing with server:", error);
+    notify("Failed to sync with server.", "err");
   }
+}
+
+// Periodically check for updates every 10s
+setInterval(syncQuotes, 10000);
+
 
   // ---------- Event Wiring ----------
   function init() {
@@ -412,7 +405,7 @@ document.getElementById("exportQuotes").addEventListener("click", exportToJsonFi
 
     els.newQuoteBtn.addEventListener("click", showRandomQuote);
     els.addQuoteBtn.addEventListener("click", createAddQuoteForm);
-    els.syncBtn.addEventListener("click", syncWithServer);
+    els.syncBtn.addEventListener("click", syncQuotes);
     els.clearBtn.addEventListener("click", clearStorage);
     
 
@@ -422,4 +415,5 @@ document.getElementById("exportQuotes").addEventListener("click", exportToJsonFi
 
   document.addEventListener("DOMContentLoaded", init);
 })();
+
 
