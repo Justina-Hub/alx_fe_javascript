@@ -26,7 +26,7 @@
     quoteCategory: document.getElementById("quoteCategory"),
     newQuoteBtn: document.getElementById("btnNewQuote"),
     addQuoteBtn: document.getElementById("btnAddQuote"),
-    exportBtn: document.getElementById("btnExport"),
+    exportBtn: document.getElementById("exportBtn"),
     syncBtn: document.getElementById("btnSync"),
     tweetLink: document.getElementById("tweetLink"),
     clearBtn: document.getElementById("btnClearStorage"),
@@ -244,7 +244,7 @@
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `quotes.json`;
+    a.download = `quotes-${new Date().toISOString().slice(0,19)}.json`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -363,15 +363,6 @@
     } else {
       showRandomQuote();
     }
-
-
-
-
-
-
-
-
-
 
     els.newQuoteBtn.addEventListener("click", showRandomQuote);
     els.addQuoteBtn.addEventListener("click", createAddQuoteForm);
