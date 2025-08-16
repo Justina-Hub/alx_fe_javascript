@@ -10,7 +10,7 @@
 (() => {
   // ---------- Storage Keys ----------
   const LS_QUOTES_KEY = "dqg_quotes";
-  const LS_LAST_FILTER = "dqg_lastFilter";
+  const selectedCategory = "dqg_lastFilter";
   const SS_LAST_VIEWED = "dqg_lastViewedQuote";
 
   // ---------- State ----------
@@ -64,8 +64,8 @@
     persistQuotes();
   };
 
-  const saveLastFilter = (val) => localStorage.setItem(LS_LAST_FILTER, val);
-  const loadLastFilter = () => localStorage.getItem(LS_LAST_FILTER) || "all";
+  const saveLastFilter = (val) => localStorage.setItem(selectedCategory, val);
+  const loadLastFilter = () => localStorage.getItem(selectedCategory) || "all";
 
   const saveLastViewed = (q) => {
     if (!q) return;
@@ -157,34 +157,30 @@
     renderQuote(pick);
   }
   
+// ---- Filtering ----
 function filterQuotes() {
-  // Persist selection
-  saveLastFilter(els.categoryFilter.value);
+  const selectedCategory = els.categoryFilter.value;
+  
+saveLastFilter(els.categoryFilter.value);
+  // Save to localStorage
+  localStorage.setItem("selectedCategory", selectedCategory);
 
-  // Get the filtered quotes
   const list = currentFilteredQuotes();
+  const displayArea = document.getElementById("quoteDisplay");
 
-  // Find the display container
-  const display = document.getElementById("quoteDisplay");
-  if (!display) return; // safety check
-
-  // Clear current content
-  display.innerHTML = "";
+  displayArea.innerHTML = "";
 
   if (!list.length) {
-    display.textContent = "No quotes found for this category.";
+    displayArea.textContent = "No quotes found for this category.";
     return;
   }
 
-  // Render each filtered quote
   list.forEach(q => {
     const div = document.createElement("div");
-    div.className = "quote-item";
-    div.textContent = `"${q.text}" — (${q.category})`;
-    display.appendChild(div);
+    div.textContent = `"${q.text}" - ${q.category}`;
+    displayArea.appendChild(div);
   });
 }
-
 
 
 
@@ -205,12 +201,6 @@ window.onload = function() {
     if (q) renderQuote(q);
   }
 };
-
-
-
-
-
-
 
   // ---------- Add Quote (form is created dynamically) ----------
   function createAddQuoteForm() {
@@ -343,7 +333,7 @@ document.getElementById("exportQuotes").addEventListener("click", exportToJsonFi
   window.importFromJsonFile = importFromJsonFile; // per assignment snippet
   function clearStorage() {
     localStorage.removeItem(LS_QUOTES_KEY);
-    localStorage.removeItem(LS_LAST_FILTER);
+    localStorage.removeItem(selectedCategory);
     sessionStorage.removeItem(SS_LAST_VIEWED);
     loadQuotes(); // reset to defaults
     populateCategories();
