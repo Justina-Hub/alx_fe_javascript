@@ -83,6 +83,7 @@
     const set = new Set(quotes.map(q => q.category.trim()).filter(Boolean));
     return Array.from(set).sort((a,b) => a.localeCompare(b));
   };
+  
 
   // ---------- Notifications ----------
   function notify(message, kind = 'notice', actions = []) {
@@ -162,6 +163,8 @@
     showRandomQuote();
   }
 
+
+
   // ---------- Add Quote (form is created dynamically) ----------
   function createAddQuoteForm() {
     // Overlay
@@ -238,7 +241,6 @@
   window.addQuote = addQuote;
   window.filterQuotes = filterQuotes;
 
-  // ---------- Import / Export ----------
 
     // ---------- Import / Export ----------
 function exportToJsonFile() {
@@ -273,6 +275,11 @@ function importFromJsonFile(event) {
       quotes.push(...importedQuotes);
       saveQuotes();
       alert("Quotes imported successfully!");
+      quotes.push(...importedQuotes);
+     persistQuotes();
+     populateCategories();
+     showRandomQuote();
+     alert("Quotes imported successfully!");
     } catch (err) {
       alert("Invalid JSON file!");
     }
