@@ -244,7 +244,7 @@
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `quotes-${new Date().toISOString().slice(0,19)}.json`;
+    a.download = `quotes.json`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -363,6 +363,15 @@
     } else {
       showRandomQuote();
     }
+
+
+
+
+
+
+
+
+
 
     els.newQuoteBtn.addEventListener("click", showRandomQuote);
     els.addQuoteBtn.addEventListener("click", createAddQuoteForm);
