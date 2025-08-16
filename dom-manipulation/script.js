@@ -137,6 +137,7 @@
     }
   }
 
+  
   function currentFilteredQuotes() {
     const sel = els.categoryFilter.value;
     return sel === "all" ? quotes : quotes.filter(q => q.category === sel);
@@ -155,13 +156,59 @@
     const pick = list[Math.floor(Math.random()*list.length)];
     renderQuote(pick);
   }
+  
+function filterQuotes() {
+  // Persist selection
+  saveLastFilter(els.categoryFilter.value);
 
-  function filterQuotes() {
-    // Persist selection
-    saveLastFilter(els.categoryFilter.value);
-    // Show a new random from the filtered set
-    showRandomQuote();
+  // Get the filtered quotes
+  const list = currentFilteredQuotes();
+
+  // Find the display container
+  const display = document.getElementById("quoteDisplay");
+  if (!display) return; // safety check
+
+  // Clear current content
+  display.innerHTML = "";
+
+  if (!list.length) {
+    display.textContent = "No quotes found for this category.";
+    return;
   }
+
+  // Render each filtered quote
+  list.forEach(q => {
+    const div = document.createElement("div");
+    div.className = "quote-item";
+    div.textContent = `"${q.text}" — (${q.category})`;
+    display.appendChild(div);
+  });
+}
+
+
+
+
+window.onload = function() {
+  loadQuotes();
+  populateCategories();
+
+  // Restore last selected category
+  els.categoryFilter.value = loadLastFilter();
+
+  // Apply filter immediately
+  filterQuotes();
+
+  // Restore last viewed (optional)
+  const lastViewed = loadLastViewed();
+  if (lastViewed) {
+    const q = quotes.find(q => q.id === lastViewed.id);
+    if (q) renderQuote(q);
+  }
+};
+
+
+
+
 
 
 
@@ -273,10 +320,7 @@ function importFromJsonFile(event) {
     try {
       const importedQuotes = JSON.parse(e.target.result);
       quotes.push(...importedQuotes);
-      saveQuotes();
-      alert("Quotes imported successfully!");
-      quotes.push(...importedQuotes);
-     persistQuotes();
+      persistQuotes();
      populateCategories();
      showRandomQuote();
      alert("Quotes imported successfully!");
@@ -380,6 +424,7 @@ document.getElementById("exportQuotes").addEventListener("click", exportToJsonFi
     els.addQuoteBtn.addEventListener("click", createAddQuoteForm);
     els.syncBtn.addEventListener("click", syncWithServer);
     els.clearBtn.addEventListener("click", clearStorage);
+    
 
     // Periodic sync every 45s (simulated)
     setInterval(syncWithServer, 45000);
