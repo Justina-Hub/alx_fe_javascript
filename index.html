@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>Dynamic Quote Generator</title>
+
+  <link rel="stylesheet" href="styles.css">
+
+  
+
+</head>
+
+<body>
+
+  <h1>Dynamic Quote Generator</h1>
+
+
+
+  <!-- Controls -->
+
+  <div class="toolbar">
+
+    <label for="categoryFilter" style="font-weight:600;">Category:</label>
+
+    <select id="categoryFilter" onchange="filterQuotes()">
+
+      <option value="all">All Categories</option>
+
+      <!-- Dynamically populated -->
+
+    </select>
+
+
+
+    <button id="btnNewQuote">Show New Quote</button>
+
+    <button id="btnAddQuote">Add Quote</button>
+
+
+
+    <span class="spacer"></span>
+
+
+
+    <button id="btnExport">Export JSON</button>
+
+    <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
+
+    <button id="btnSync">Sync Now</button>
+
+  </div>
+
+
+
+  <!-- Quote Display -->
+
+  <figure id="quoteCard">
+
+    <blockquote id="quoteText">Click “Show New Quote” to begin.</blockquote>
+
+    <figcaption id="quoteCategory"></figcaption>
+
+  </figure>
+
+
+
+  <div class="toolbar" style="margin-top:.25rem;">
+
+    <a id="tweetLink" href="#" target="_blank" rel="noopener">
+
+      <button>Tweet this</button>
+
+    </a>
+
+    <button id="btnClearStorage" title="Remove saved quotes & preferences from this browser only">Clear Storage</button>
+
+  </div>
+
+  
+
+
+
+  <!-- Notifications -->
+
+  <div id="notifications"></div>
+
+
+
+  <script src="script.js"></script>
+
+</body>
+
+</html>
+
