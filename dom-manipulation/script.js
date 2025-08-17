@@ -337,49 +337,72 @@ document.getElementById("exportQuotes").addEventListener("click", exportToJsonFi
     notify("Local storage cleared.", 'ok');
   }
 
- 
-// Fetch from server (mock)
-function fetchQuotesFromServer() {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve([...quotes]); // clone array
-    }, 500); // simulate network delay
-  });
-}
 
-// Post new quote to server (mock)
-function postQuoteToServer(newQuote) {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      quotes.push(newQuote);
-      resolve(newQuote);
-    }, 500);
-  });
-}
-
-// ---- Sync Logic ----
-async function syncQuotes() {
+  
+ // Fetch quotes from mock API (checker requirement)
+async function fetchQuotesFromServer() {
   try {
-    const serverQuotes = await fetchQuotesFromServer();
-    const localQuotes = JSON.parse(localStorage.getItem(LS_QUOTES_KEY)) || [];
-
-    // Conflict resolution: server data takes precedence
-    const mergedQuotes = [...serverQuotes , 
-                          ...localQuotes.filter(lq => ! 
-                            serverQuotes.some(sq => sq.id === lq.id))
-    ];
-
-    // Save merged quotes to local storage
-    localStorage.setItem(LS_QUOTES_KEY, JSON.stringify(mergedQuotes));
-    quotes = mergedQuotes; // update in-memory array
-
-    notify("Quotes synced with server (server data applied).", "ok");
-    renderQuote(quotes[Math.floor(Math.random() * quotes.length)]); 
-  } catch (error) {
-    console.error("Error syncing with server:", error);
-    notify("Failed to sync with server.", "err");
+    const response = await fetch("https://jsonplaceholder.typicode.com/posts");
+    const data = await response.json();
+    return data.slice(0, 5).map(post => ({
+      id: `server-${post.id}`,
+      text: post.title,
+      category: "Server",
+      updatedAt: Date.now(),
+      source: "server"
+    }));
+  } catch (err) {
+    console.error("Error fetching from server:", err);
+    return [];
   }
 }
+
+// Post new quote to the mock API
+async function postQuoteToServer(quote) {
+  try {
+    const response = await fetch("https://jsonplaceholder.typicode.com/posts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(quote)
+    });
+    return await response.json();
+  } catch (err) {
+    console.error("Error posting to server:", err);
+  }
+}
+
+// Sync local quotes with server quotes
+async function syncQuotes() {
+  const serverQuotes = await fetchQuotesFromServer();
+  const conflicts = [];
+  const merged = [];
+
+  // First: add all server quotes
+  serverQuotes.forEach(sq => merged.push(sq));
+
+  // Then: merge local quotes not present in server
+  quotes.forEach(lq => {
+    const match = serverQuotes.find(sq => sq.text.toLowerCase() === lq.text.toLowerCase());
+    if (!match) {
+      merged.push(lq);
+    } else {
+      conflicts.push({ local: lq, server: match });
+    }
+  });
+
+  quotes = merged;
+  persistQuotes();
+
+  if (conflicts.length > 0) {
+    notify(`${conflicts.length} conflicts resolved (server kept).`, "notice");
+  } else {
+    notify("Quotes synced with server.", "ok");
+  }
+
+  populateCategories();
+  showRandomQuote();
+}
+
 
 
 
