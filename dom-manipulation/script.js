@@ -361,7 +361,7 @@ function postQuoteToServer(newQuote) {
 async function syncQuotes() {
   try {
     const serverQuotes = await fetchQuotesFromServer();
-    const localQuotes = JSON.parse(localStorage.getItem("LS_QUOTES_KEY")) || [];
+    const localQuotes = JSON.parse(localStorage.getItem(LS_QUOTES_KEY)) || [];
 
     // Conflict resolution: server data takes precedence
     const mergedQuotes = [...serverQuotes , 
@@ -370,7 +370,7 @@ async function syncQuotes() {
     ];
 
     // Save merged quotes to local storage
-    localStorage.setItem("LS_QUOTES_KEY", JSON.stringify(mergedQuotes));
+    localStorage.setItem(LS_QUOTES_KEY, JSON.stringify(mergedQuotes));
     quotes = mergedQuotes; // update in-memory array
 
     notify("Quotes synced with server (server data applied).", "ok");
@@ -412,7 +412,7 @@ async function syncQuotes() {
     
 
     // Periodic sync every 45s (simulated)
-    setInterval(syncQuotes, 45000);
+    setInterval(syncQuotes, 10000);
   }
 
   document.addEventListener("DOMContentLoaded", init);
