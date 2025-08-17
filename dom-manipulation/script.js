@@ -338,7 +338,7 @@ document.getElementById("exportQuotes").addEventListener("click", exportToJsonFi
   }
 
 
-  
+
  // Fetch quotes from mock API (checker requirement)
 async function fetchQuotesFromServer() {
   try {
@@ -396,7 +396,7 @@ async function syncQuotes() {
   if (conflicts.length > 0) {
     notify(`${conflicts.length} conflicts resolved (server kept).`, "notice");
   } else {
-    notify("Quotes synced with server.", "ok");
+    notify("Quotes synced with server!", "ok");
   }
 
   populateCategories();
