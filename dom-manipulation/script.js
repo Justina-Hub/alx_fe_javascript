@@ -83,7 +83,6 @@
     const set = new Set(quotes.map(q => q.category.trim()).filter(Boolean));
     return Array.from(set).sort((a,b) => a.localeCompare(b));
   };
-  
 
   // ---------- Notifications ----------
   function notify(message, kind = 'notice', actions = []) {
@@ -136,7 +135,6 @@
       select.value = "all";
     }
   }
-
   
   function currentFilteredQuotes() {
     const sel = els.categoryFilter.value;
@@ -181,8 +179,6 @@ saveLastFilter(els.categoryFilter.value);
     displayArea.appendChild(div);
   });
 }
-
-
 
 window.onload = function() {
   loadQuotes();
@@ -302,7 +298,6 @@ function exportToJsonFile() {
 
 window.exportToJsonFile = exportToJsonFile;
 
-
 // Import quotes from JSON file
 function importFromJsonFile(event) {
   const fileReader = new FileReader();
@@ -324,8 +319,6 @@ function importFromJsonFile(event) {
 // Event listener for export button
 document.getElementById("exportQuotes").addEventListener("click", exportToJsonFile);
 
-
-
   window.importFromJsonFile = importFromJsonFile; // per assignment snippet
   function clearStorage() {
     localStorage.removeItem(LS_QUOTES_KEY);
@@ -336,8 +329,6 @@ document.getElementById("exportQuotes").addEventListener("click", exportToJsonFi
     showRandomQuote();
     notify("Local storage cleared.", 'ok');
   }
-
-
 
  // Fetch quotes from mock API (checker requirement)
 async function fetchQuotesFromServer() {
@@ -403,10 +394,6 @@ async function syncQuotes() {
   showRandomQuote();
 }
 
-
-
-
-
   // ---------- Event Wiring ----------
   function init() {
     loadQuotes();
@@ -421,11 +408,6 @@ async function syncQuotes() {
     } else {
       showRandomQuote();
     }
-
-
-
-
-
 
 
     els.newQuoteBtn.addEventListener("click", showRandomQuote);
