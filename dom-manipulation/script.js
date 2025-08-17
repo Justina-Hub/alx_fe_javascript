@@ -361,13 +361,16 @@ function postQuoteToServer(newQuote) {
 async function syncQuotes() {
   try {
     const serverQuotes = await fetchQuotesFromServer();
-    const localQuotes = JSON.parse(localStorage.getItem("dqg_quotes")) || [];
+    const localQuotes = JSON.parse(localStorage.getItem("LS_QUOTES_KEY")) || [];
 
     // Conflict resolution: server data takes precedence
-    const mergedQuotes = [...serverQuotes];
+    const mergedQuotes = [...serverQuotes , 
+                          ...localQuotes.filter(lq => ! 
+                            serverQuotes.some(sq => sq.id === lq.id))
+    ];
 
     // Save merged quotes to local storage
-    localStorage.setItem("quotes", JSON.stringify(mergedQuotes));
+    localStorage.setItem("LS_QUOTES_KEY", JSON.stringify(mergedQuotes));
     quotes = mergedQuotes; // update in-memory array
 
     notify("Quotes synced with server (server data applied).", "ok");
@@ -378,8 +381,7 @@ async function syncQuotes() {
   }
 }
 
-// Periodically check for updates every 10s
-setInterval(syncQuotes, 10000);
+
 
 
   // ---------- Event Wiring ----------
@@ -410,7 +412,7 @@ setInterval(syncQuotes, 10000);
     
 
     // Periodic sync every 45s (simulated)
-    setInterval(syncWithServer, 45000);
+    setInterval(syncQuotes, 45000);
   }
 
   document.addEventListener("DOMContentLoaded", init);
